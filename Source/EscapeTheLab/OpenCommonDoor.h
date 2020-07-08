@@ -25,9 +25,22 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	void OpenDoor();
-	void CloseDoor();
-	void RotateDoor();
+	FVector DoorLocationOrigin;
+	FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(150.f);
 
-		
+	UInputComponent *InputComponent = nullptr;
+
+	bool isOpened = false;
+	bool isOpening = false;
+	bool isClosing = false;
+	float InitialYaw;
+	float CurrentYaw;
+	UPROPERTY(EditAnywhere)
+	float OpenAngle = 90.f;
+
+	bool IsPawnBesidesTheDoor() const;	
+	void RotateDoor(float &RotateYaw, float &DeltaTime);
+	void SwingDoor();
+	void OpenDoor(float &DeltaTime);
+	void CloseDoor(float &DeltaTime);
 };
