@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/TriggerVolume.h"
 #include "OpenCommonDoor.generated.h"
 
 
@@ -26,21 +27,26 @@ public:
 
 private:
 	FVector DoorLocationOrigin;
-	FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(150.f);
-
 	UInputComponent *InputComponent = nullptr;
+	AActor *PlayersActor = nullptr;
 
 	bool isOpened = false;
 	bool isOpening = false;
 	bool isClosing = false;
 	float InitialYaw;
 	float CurrentYaw;
+
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = 90.f;
+	UPROPERTY(EditAnywhere)
+	ATriggerVolume *CommonDoorTriggerVolume = nullptr;
 
 	bool IsPawnBesidesTheDoor() const;	
 	void RotateDoor(float &RotateYaw, float &DeltaTime);
 	void SwingDoor();
 	void OpenDoor(float &DeltaTime);
 	void CloseDoor(float &DeltaTime);
+	bool FindPlayersActor();
+	bool FindInputComponent();
+	bool FindCommonDoorTriggerVolume() const;
 };

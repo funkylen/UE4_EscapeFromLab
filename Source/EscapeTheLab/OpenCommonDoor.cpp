@@ -32,9 +32,7 @@ void UOpenCommonDoor::BeginPlay()
 	FVector BoxExtent;
 	GetOwner()->GetActorBounds(false, DoorLocationOrigin, BoxExtent);
 
-	InputComponent = GetWorld()->GetFirstPlayerController()->FindComponentByClass<UInputComponent>();
-
-	if (InputComponent)
+	if (FindPlayersActor() && FindInputComponent() && FindCommonDoorTriggerVolume())
 	{
 		InputComponent->BindAction("Use", IE_Pressed, this, &UOpenCommonDoor::SwingDoor);
 	}
@@ -57,15 +55,7 @@ void UOpenCommonDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 bool UOpenCommonDoor::IsPawnBesidesTheDoor() const
 {
-	TArray<FHitResult> Hits;
-
-	return GetWorld()->SweepMultiByObjectType(
-		OUT Hits,
-		DoorLocationOrigin,
-		DoorLocationOrigin,
-		FQuat::Identity,
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_Pawn),
-		CollisionSphere);
+	return CommonDoorTriggerVolume->IsOverlappingActor(PlayersActor);
 }
 
 void UOpenCommonDoor::RotateDoor(float &RotateYaw, float &DeltaTime)
@@ -102,4 +92,41 @@ void UOpenCommonDoor::SwingDoor()
 		isOpening = true;
 		isClosing = false;
 	}
+}
+
+bool UOpenCommonDoor::FindPlayersActor()
+{
+	PlayersActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	
+	if (!PlayersActor)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayersActor not found in %s"), *GetOwner()->GetName());
+		return false;
+	}
+
+	return true;
+}
+
+bool UOpenCommonDoor::FindInputComponent()
+{
+	InputComponent = GetWorld()->GetFirstPlayerController()->FindComponentByClass<UInputComponent>();
+
+	if (!InputComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("InputComponent not found in %s"), *GetOwner()->GetName());
+		return false;
+	}
+
+	return true;
+}
+
+bool UOpenCommonDoor::FindCommonDoorTriggerVolume() const
+{
+	if (!CommonDoorTriggerVolume)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CommonDoorTriggerVolume not found in %s"), *GetOwner()->GetName());
+		return false;
+	}
+
+	return true;
 }
