@@ -4,6 +4,7 @@
 #include "OpenCommonDoor.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
+#include "PressButton.h"
 #include "DrawDebugHelpers.h"
 
 #define OUT
@@ -82,6 +83,20 @@ void UOpenCommonDoor::SwingDoor()
 		return;
 	}
 
+	if (!IsAllowedToOpen)
+	{
+		if (!FindAllowButton())
+		{
+			return;
+		}
+
+		if (!AllowButton->FindComponentByClass<UPressButton>()->IsPressed)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Open is not allowed!"));
+			return;
+		}
+	}
+
 	if (isOpened)
 	{
 		isOpening = false;
@@ -97,7 +112,7 @@ void UOpenCommonDoor::SwingDoor()
 bool UOpenCommonDoor::FindPlayersActor()
 {
 	PlayersActor = GetWorld()->GetFirstPlayerController()->GetPawn();
-	
+
 	if (!PlayersActor)
 	{
 		UE_LOG(LogTemp, Error, TEXT("PlayersActor not found in %s"), *GetOwner()->GetName());
@@ -125,6 +140,17 @@ bool UOpenCommonDoor::FindCommonDoorTriggerVolume() const
 	if (!CommonDoorTriggerVolume)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CommonDoorTriggerVolume not found in %s"), *GetOwner()->GetName());
+		return false;
+	}
+
+	return true;
+}
+
+bool UOpenCommonDoor::FindAllowButton() const
+{
+	if (!AllowButton)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AllowButton not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 

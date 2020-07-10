@@ -37,6 +37,10 @@ private:
 	float CurrentYaw;
 
 	UPROPERTY(EditAnywhere)
+	bool IsAllowedToOpen = false;
+	UPROPERTY(EditAnywhere)
+	AActor *AllowButton = nullptr;
+	UPROPERTY(EditAnywhere)
 	float OpenAngle = 90.f;
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *CommonDoorTriggerVolume = nullptr;
@@ -49,4 +53,5 @@ private:
 	bool FindPlayersActor();
 	bool FindInputComponent();
 	bool FindCommonDoorTriggerVolume() const;
+	bool FindAllowButton() const;
 };
