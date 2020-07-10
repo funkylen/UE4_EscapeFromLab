@@ -35,6 +35,11 @@ void UPressButton::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 
 void UPressButton::Press()
 {
+	if (IsPressed)
+	{
+		return;
+	}
+
 	if (!ButtonTriggerVolume->IsOverlappingActor(PlayersActor))
 	{
 		return;
@@ -63,7 +68,6 @@ bool UPressButton::FindButtonTriggerVolume() const
 {
 	if (!ButtonTriggerVolume)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ButtonTriggerVolume not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 
@@ -73,10 +77,9 @@ bool UPressButton::FindButtonTriggerVolume() const
 bool UPressButton::FindPlayersActor()
 {
 	PlayersActor = GetWorld()->GetFirstPlayerController()->GetPawn();
-	
+
 	if (!PlayersActor)
 	{
-		UE_LOG(LogTemp, Error, TEXT("PlayersActor not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 
