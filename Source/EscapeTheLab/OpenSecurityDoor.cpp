@@ -26,9 +26,16 @@ void UOpenSecurityDoor::BeginPlay()
 // Called every frame
 void UOpenSecurityDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
 
-	OpenDoor(DeltaTime);
+	if (GetTotalMassOfActorsOnPlate() >= MassToOpenDoor)
+	{
+		MoveDoor(DeltaTime, OffsetY);
+	}
+	else 
+	{
+		MoveDoor(DeltaTime, InitialY);
+	}
 }
 
 void UOpenSecurityDoor::FindPressurePlate() const
@@ -39,10 +46,30 @@ void UOpenSecurityDoor::FindPressurePlate() const
 	}
 }
 
-void UOpenSecurityDoor::OpenDoor(float &DeltaTime)
+void UOpenSecurityDoor::MoveDoor(float &DeltaTime, float &ToYaw)
 {
-	CurrentY = FMath::Lerp(CurrentY, OffsetY, DeltaTime * OpenSpeed);
+	CurrentY = FMath::Lerp(CurrentY, ToYaw, DeltaTime * OpenSpeed);
 	FVector DoorLocation = GetOwner()->GetActorLocation();
 	DoorLocation.Y = CurrentY;
 	GetOwner()->SetActorLocation(DoorLocation);
+}
+
+float UOpenSecurityDoor::GetTotalMassOfActorsOnPlate() const
+{
+	float TotalMass = 0.f;
+
+	if (!PressurePlate)
+	{
+		return TotalMass;
+	}
+
+	TArray<AActor *> OverlappingActors;
+	PressurePlate->GetOverlappingActors(OverlappingActors);
+
+	for (AActor *Actor : OverlappingActors)
+	{
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+
+	return TotalMass;
 }

@@ -40,6 +40,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	float OpenSpeed = 1.f;
 
-	void OpenDoor(float &DeltaTime);
+	void MoveDoor(float &DeltaTime, float &ToYaw);
 	void FindPressurePlate() const;
+	float GetTotalMassOfActorsOnPlate() const;
 };
