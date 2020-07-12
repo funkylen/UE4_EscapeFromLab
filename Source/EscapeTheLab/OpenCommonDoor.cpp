@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "PressButton.h"
 #include "DrawDebugHelpers.h"
+#include "DoorOpener.h"
 
 #define OUT
 
@@ -56,7 +57,23 @@ void UOpenCommonDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 bool UOpenCommonDoor::IsPawnBesidesTheDoor() const
 {
-	return CommonDoorTriggerVolume->IsOverlappingActor(PlayersActor);
+	UDoorOpener *DoorOpener = PlayersActor->FindComponentByClass<UDoorOpener>();
+
+	if (!DoorOpener)
+	{
+		return false;
+	}
+
+	AActor *Door = DoorOpener->GetDoorBesidesPlayer();
+
+	if (!Door)
+	{
+		return false;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("here %s"), *Door->GetName());
+
+	return Door->GetName() == GetOwner()->GetName() && CommonDoorTriggerVolume->IsOverlappingActor(PlayersActor);
 }
 
 void UOpenCommonDoor::RotateDoor(float &RotateYaw, float &DeltaTime)
