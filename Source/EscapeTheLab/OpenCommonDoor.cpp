@@ -5,7 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "PressButton.h"
-#include "DrawDebugHelpers.h"
+#include "Components/AudioComponent.h"
 #include "DoorOpener.h"
 
 #define OUT
@@ -29,10 +29,8 @@ void UOpenCommonDoor::BeginPlay()
 	CurrentYaw = InitialYaw;
 	OpenAngle += InitialYaw;
 
-	FRotator DoorRotation = GetOwner()->GetActorRotation();
-
-	FVector BoxExtent;
-	GetOwner()->GetActorBounds(false, DoorLocationOrigin, BoxExtent);
+	SetupDoorLocationOrigin();
+	FindAudioComponents();
 
 	if (FindPlayersActor() && FindInputComponent() && FindCommonDoorTriggerVolume())
 	{
@@ -45,13 +43,53 @@ void UOpenCommonDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (isOpening)
+	if (CommonDoorUnlockedSoundComponent && IsAllowedToOpen && !UnlockDoorSound) 
 	{
-		RotateDoor(OpenAngle, DeltaTime);
+		CommonDoorUnlockedSoundComponent->Play();
+		UnlockDoorSound = true;
 	}
-	else if (isClosing)
+
+	if (IsOpening)
 	{
-		RotateDoor(InitialYaw, DeltaTime);
+		OpenDoor(DeltaTime);
+	}
+	else if (IsClosing)
+	{
+		CloseDoor(DeltaTime);
+	}
+}
+
+void UOpenCommonDoor::OpenDoor(float &DeltaTime)
+{
+	RotateDoor(OpenAngle, DeltaTime);
+
+	if (!CommonDoorOpenSoundComponent)
+	{
+		return;
+	}
+
+	if (!OpenDoorSound)
+	{
+		CommonDoorOpenSoundComponent->Play();
+		OpenDoorSound = true;
+		CloseDoorSound = false;
+	}
+}
+
+void UOpenCommonDoor::CloseDoor(float &DeltaTime)
+{
+	RotateDoor(InitialYaw, DeltaTime);
+
+	if (!CommonDoorCloseSoundComponent)
+	{
+		return;
+	}
+
+	if (!CloseDoorSound)
+	{
+		CommonDoorCloseSoundComponent->Play();
+		CloseDoorSound = true;
+		OpenDoorSound = false;
 	}
 }
 
@@ -71,8 +109,6 @@ bool UOpenCommonDoor::IsPawnBesidesTheDoor() const
 		return false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("here %s"), *Door->GetName());
-
 	return Door->GetName() == GetOwner()->GetName() && CommonDoorTriggerVolume->IsOverlappingActor(PlayersActor);
 }
 
@@ -80,13 +116,13 @@ void UOpenCommonDoor::RotateDoor(float &RotateYaw, float &DeltaTime)
 {
 	if (round(CurrentYaw) == RotateYaw)
 	{
-		isOpened = RotateYaw == OpenAngle;
-		isOpening = false;
-		isClosing = false;
+		IsOpened = RotateYaw == OpenAngle;
+		IsOpening = false;
+		IsClosing = false;
 		return;
 	}
 
-	CurrentYaw = FMath::Lerp(CurrentYaw, RotateYaw, DeltaTime * 2.f);
+	CurrentYaw = FMath::Lerp(CurrentYaw, RotateYaw, DeltaTime * 5.f);
 	FRotator DoorRotation = GetOwner()->GetActorRotation();
 	DoorRotation.Yaw = CurrentYaw;
 	GetOwner()->SetActorRotation(DoorRotation);
@@ -102,6 +138,11 @@ void UOpenCommonDoor::SwingDoor()
 
 	if (!IsAllowedToOpen)
 	{
+		if (CommonDoorLockedSoundComponent)
+		{
+			CommonDoorLockedSoundComponent->Play();
+		}
+		
 		if (!FindAllowButton())
 		{
 			return;
@@ -114,15 +155,15 @@ void UOpenCommonDoor::SwingDoor()
 		}
 	}
 
-	if (isOpened)
+	if (IsOpened)
 	{
-		isOpening = false;
-		isClosing = true;
+		IsOpening = false;
+		IsClosing = true;
 	}
 	else
 	{
-		isOpening = true;
-		isClosing = false;
+		IsOpening = true;
+		IsClosing = false;
 	}
 }
 
@@ -172,4 +213,42 @@ bool UOpenCommonDoor::FindAllowButton() const
 	}
 
 	return true;
+}
+
+bool UOpenCommonDoor::FindAudioComponents()
+{
+	TArray<UAudioComponent *> Components;
+	GetOwner()->GetComponents<UAudioComponent>(Components);
+
+	if (Components.Num() != 0)
+	{
+		for (UAudioComponent *AudioComponent : Components)
+		{
+			if (AudioComponent->GetName() == "CommonDoorOpenSound")
+			{
+				CommonDoorOpenSoundComponent = AudioComponent;
+			}
+			else if (AudioComponent->GetName() == "CommonDoorCloseSound")
+			{
+				CommonDoorCloseSoundComponent = AudioComponent;
+			}
+			else if (AudioComponent->GetName() == "CommonDoorLockedSound")
+			{
+				CommonDoorLockedSoundComponent = AudioComponent;
+			}
+			else if (AudioComponent->GetName() == "CommonDoorUnlockedSound")
+			{
+				CommonDoorUnlockedSoundComponent = AudioComponent;
+			}
+		}
+		return true;
+	}
+
+	return false;
+}
+
+void UOpenCommonDoor::SetupDoorLocationOrigin()
+{
+	FVector BoxExtent;
+	GetOwner()->GetActorBounds(false, DoorLocationOrigin, BoxExtent);
 }
