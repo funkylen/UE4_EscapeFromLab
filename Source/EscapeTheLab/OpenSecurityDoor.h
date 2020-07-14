@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/TriggerVolume.h"
+#include "Components/AudioComponent.h"
 #include "OpenSecurityDoor.generated.h"
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -25,14 +26,19 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 private:
+	bool bOpenSound = false;
+	bool bCloseSound = true;
 	float InitialY;
 	float CurrentY;
+
+	UAudioComponent* OpenSoundComponent = nullptr;
+	UAudioComponent* CloseSoundComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float OffsetY = 0.f;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume *PressurePlate = nullptr;
+	ATriggerVolume* PressurePlate = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float MassToOpenDoor = 50.f;
@@ -43,4 +49,5 @@ private:
 	void MoveDoor(float &DeltaTime, float &ToYaw);
 	void FindPressurePlate() const;
 	float GetTotalMassOfActorsOnPlate() const;
+	bool FindAudioComponents();
 };

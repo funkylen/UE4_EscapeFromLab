@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OpenSecurityDoor.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values for this component's properties
 UOpenSecurityDoor::UOpenSecurityDoor()
@@ -21,20 +22,35 @@ void UOpenSecurityDoor::BeginPlay()
 	CurrentY = InitialY;
 
 	FindPressurePlate();
+	FindAudioComponents();
 }
 
 // Called every frame
 void UOpenSecurityDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);	
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (GetTotalMassOfActorsOnPlate() >= MassToOpenDoor)
 	{
 		MoveDoor(DeltaTime, OffsetY);
+
+		if (!bOpenSound && OpenSoundComponent)
+		{
+			OpenSoundComponent->Play();
+			bOpenSound = true;
+			bCloseSound = false;
+		}
 	}
-	else 
+	else
 	{
 		MoveDoor(DeltaTime, InitialY);
+
+		if (!bCloseSound && CloseSoundComponent)
+		{
+			CloseSoundComponent->Play();
+			bCloseSound = true;
+			bOpenSound = false;
+		}
 	}
 }
 
@@ -72,4 +88,28 @@ float UOpenSecurityDoor::GetTotalMassOfActorsOnPlate() const
 	}
 
 	return TotalMass;
+}
+
+bool UOpenSecurityDoor::FindAudioComponents()
+{
+	TArray<UAudioComponent *> Components;
+	GetOwner()->GetComponents<UAudioComponent>(Components);
+
+	if (Components.Num() != 0)
+	{
+		for (UAudioComponent *AudioComponent : Components)
+		{
+			if (AudioComponent->GetName() == "OpenSound")
+			{
+				OpenSoundComponent = AudioComponent;
+			}
+			else if (AudioComponent->GetName() == "CloseSound")
+			{
+				CloseSoundComponent = AudioComponent;
+			}
+		}
+		return true;
+	}
+
+	return false;
 }

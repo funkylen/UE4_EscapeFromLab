@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PressButton.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "OpenCommonDoor.h"
+#include "PressButton.h"
 
 // Sets default values for this component's properties
 UPressButton::UPressButton()
@@ -19,7 +20,9 @@ void UPressButton::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (FindInputComponent() && FindButtonTriggerVolume() && FindPlayersActor())
+	FindAudioComponent();
+
+	if (FindDoorToOpen() && FindButtonTriggerVolume() && FindInputComponent() && FindPlayersActor())
 	{
 		InputComponent->BindAction("Use", IE_Pressed, this, &UPressButton::Press);
 	}
@@ -45,10 +48,22 @@ void UPressButton::Press()
 		return;
 	}
 
+	UOpenCommonDoor *OpenCommonDoorComponent = DoorToOpen->FindComponentByClass<UOpenCommonDoor>();
+
+	if (!OpenCommonDoorComponent)
+	{
+		return;
+	}
+
 	IsPressed = true;
 	FVector ButtonLocation = GetOwner()->GetActorLocation();
 	ButtonLocation.Z -= 8;
+	if (PressSound)
+	{
+		PressSound->Play();
+	}
 	GetOwner()->SetActorLocation(ButtonLocation);
+	OpenCommonDoorComponent->IsAllowedToOpen = true;
 }
 
 bool UPressButton::FindInputComponent()
@@ -57,7 +72,6 @@ bool UPressButton::FindInputComponent()
 
 	if (!InputComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("InputComponent not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 
@@ -79,6 +93,28 @@ bool UPressButton::FindPlayersActor()
 	PlayersActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 
 	if (!PlayersActor)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool UPressButton::FindDoorToOpen() const
+{
+	if (!DoorToOpen)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool UPressButton::FindAudioComponent()
+{
+	PressSound = GetOwner()->FindComponentByClass<UAudioComponent>();
+
+	if (!PressSound)
 	{
 		return false;
 	}

@@ -43,7 +43,7 @@ void UOpenCommonDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CommonDoorUnlockedSoundComponent && IsAllowedToOpen && !UnlockDoorSound) 
+	if (CommonDoorUnlockedSoundComponent && IsAllowedToOpen && !UnlockDoorSound)
 	{
 		CommonDoorUnlockedSoundComponent->Play();
 		UnlockDoorSound = true;
@@ -132,27 +132,12 @@ void UOpenCommonDoor::SwingDoor()
 {
 	if (!IsPawnBesidesTheDoor())
 	{
-		// UE_LOG(LogTemp, Error, TEXT("NOT BESIDE THE DOOR!"));
 		return;
 	}
 
-	if (!IsAllowedToOpen)
+	if (!IsAllowedToOpen && CommonDoorLockedSoundComponent)
 	{
-		if (CommonDoorLockedSoundComponent)
-		{
-			CommonDoorLockedSoundComponent->Play();
-		}
-		
-		if (!FindAllowButton())
-		{
-			return;
-		}
-
-		if (!AllowButton->FindComponentByClass<UPressButton>()->IsPressed)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Open is not allowed!"));
-			return;
-		}
+		CommonDoorLockedSoundComponent->Play();
 	}
 
 	if (IsOpened)
@@ -173,7 +158,6 @@ bool UOpenCommonDoor::FindPlayersActor()
 
 	if (!PlayersActor)
 	{
-		UE_LOG(LogTemp, Error, TEXT("PlayersActor not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 
@@ -186,7 +170,6 @@ bool UOpenCommonDoor::FindInputComponent()
 
 	if (!InputComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("InputComponent not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 
@@ -197,18 +180,6 @@ bool UOpenCommonDoor::FindCommonDoorTriggerVolume() const
 {
 	if (!CommonDoorTriggerVolume)
 	{
-		UE_LOG(LogTemp, Error, TEXT("CommonDoorTriggerVolume not found in %s"), *GetOwner()->GetName());
-		return false;
-	}
-
-	return true;
-}
-
-bool UOpenCommonDoor::FindAllowButton() const
-{
-	if (!AllowButton)
-	{
-		UE_LOG(LogTemp, Error, TEXT("AllowButton not found in %s"), *GetOwner()->GetName());
 		return false;
 	}
 

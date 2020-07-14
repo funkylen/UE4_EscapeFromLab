@@ -8,13 +8,12 @@
 #include "Components/AudioComponent.h"
 #include "OpenCommonDoor.generated.h"
 
-
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ESCAPETHELAB_API UOpenCommonDoor : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UOpenCommonDoor();
 
@@ -22,9 +21,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+
+	UPROPERTY(EditAnywhere)
+	bool IsAllowedToOpen = false;
 
 private:
 	bool IsOpened = false;
@@ -46,17 +48,12 @@ private:
 	UAudioComponent *CommonDoorUnlockedSoundComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	bool IsAllowedToOpen = false;
-	UPROPERTY(EditAnywhere)
 	float OpenAngle = 90.f;
-	UPROPERTY(EditAnywhere)
-	AActor *AllowButton = nullptr;
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *CommonDoorTriggerVolume = nullptr;
 
-	bool IsPawnBesidesTheDoor() const;	
+	bool IsPawnBesidesTheDoor() const;
 	bool FindCommonDoorTriggerVolume() const;
-	bool FindAllowButton() const;
 	bool FindPlayersActor();
 	bool FindInputComponent();
 	bool FindAudioComponents();

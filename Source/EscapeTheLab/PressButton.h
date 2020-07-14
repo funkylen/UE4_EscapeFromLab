@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/AudioComponent.h"
 #include "Engine/TriggerVolume.h"
 #include "PressButton.generated.h"
 
@@ -30,11 +31,17 @@ private:
 	void Press();
 	bool FindInputComponent();
 	bool FindPlayersActor();
+	bool FindAudioComponent();
+	bool FindDoorToOpen() const;
 	bool FindButtonTriggerVolume() const;
 
-	UInputComponent *InputComponent = nullptr;
-	AActor *PlayersActor = nullptr;
+	UInputComponent* InputComponent = nullptr;
+	AActor* PlayersActor = nullptr;
+	UAudioComponent* PressSound = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *ButtonTriggerVolume = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	AActor* DoorToOpen = nullptr;	
 };
