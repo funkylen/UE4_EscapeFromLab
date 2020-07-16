@@ -26,43 +26,26 @@ void UOpenSecurityDoor::BeginPlay()
 }
 
 // Called every frame
-void UOpenSecurityDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UOpenSecurityDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (GetTotalMassOfActorsOnPlate() >= MassToOpenDoor)
 	{
-		MoveDoor(DeltaTime, OffsetY);
-
-		if (!bOpenSound && OpenSoundComponent)
-		{
-			OpenSoundComponent->Play();
-			bOpenSound = true;
-			bCloseSound = false;
-		}
+		OpenDoor(DeltaTime);
 	}
 	else
 	{
-		MoveDoor(DeltaTime, InitialY);
-
-		if (!bCloseSound && CloseSoundComponent)
-		{
-			CloseSoundComponent->Play();
-			bCloseSound = true;
-			bOpenSound = false;
-		}
+		CloseDoor(DeltaTime);
 	}
 }
 
-void UOpenSecurityDoor::FindPressurePlate() const
+bool UOpenSecurityDoor::FindPressurePlate() const
 {
-	if (!PressurePlate)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s has the OpenDoor component on it, but no PressurePlate set."), *GetOwner()->GetName());
-	}
+	return !!PressurePlate;
 }
 
-void UOpenSecurityDoor::MoveDoor(float &DeltaTime, float &ToYaw)
+void UOpenSecurityDoor::MoveDoor(float& DeltaTime, float& ToYaw)
 {
 	CurrentY = FMath::Lerp(CurrentY, ToYaw, DeltaTime * OpenSpeed);
 	FVector DoorLocation = GetOwner()->GetActorLocation();
@@ -79,10 +62,10 @@ float UOpenSecurityDoor::GetTotalMassOfActorsOnPlate() const
 		return TotalMass;
 	}
 
-	TArray<AActor *> OverlappingActors;
+	TArray<AActor*> OverlappingActors;
 	PressurePlate->GetOverlappingActors(OverlappingActors);
 
-	for (AActor *Actor : OverlappingActors)
+	for (AActor* Actor : OverlappingActors)
 	{
 		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
 	}
@@ -92,12 +75,12 @@ float UOpenSecurityDoor::GetTotalMassOfActorsOnPlate() const
 
 bool UOpenSecurityDoor::FindAudioComponents()
 {
-	TArray<UAudioComponent *> Components;
+	TArray<UAudioComponent*> Components;
 	GetOwner()->GetComponents<UAudioComponent>(Components);
 
 	if (Components.Num() != 0)
 	{
-		for (UAudioComponent *AudioComponent : Components)
+		for (UAudioComponent* AudioComponent : Components)
 		{
 			if (AudioComponent->GetName() == "OpenSound")
 			{
@@ -112,4 +95,34 @@ bool UOpenSecurityDoor::FindAudioComponents()
 	}
 
 	return false;
+}
+
+void UOpenSecurityDoor::OpenDoor(float& DeltaTime)
+{
+	MoveDoor(DeltaTime, OffsetY);
+
+	if (!bOpenSound)
+	{
+		if (OpenSoundComponent) {
+			OpenSoundComponent->Play();
+		}
+
+		bOpenSound = true;
+		bCloseSound = false;
+	}
+}
+
+void UOpenSecurityDoor::CloseDoor(float& DeltaTime)
+{
+	MoveDoor(DeltaTime, InitialY);
+
+	if (!bCloseSound)
+	{
+		if (CloseSoundComponent) {
+			CloseSoundComponent->Play();
+		}
+
+		bCloseSound = true;
+		bOpenSound = false;
+	}
 }

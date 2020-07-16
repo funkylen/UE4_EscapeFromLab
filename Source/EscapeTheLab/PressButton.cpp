@@ -29,7 +29,7 @@ void UPressButton::BeginPlay()
 }
 
 // Called every frame
-void UPressButton::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UPressButton::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -38,7 +38,7 @@ void UPressButton::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 
 void UPressButton::Press()
 {
-	if (IsPressed)
+	if (bIsPressed)
 	{
 		return;
 	}
@@ -48,14 +48,14 @@ void UPressButton::Press()
 		return;
 	}
 
-	UOpenCommonDoor *OpenCommonDoorComponent = DoorToOpen->FindComponentByClass<UOpenCommonDoor>();
+	UOpenCommonDoor* OpenCommonDoorComponent = DoorToOpen->FindComponentByClass<UOpenCommonDoor>();
 
 	if (!OpenCommonDoorComponent)
 	{
 		return;
 	}
 
-	IsPressed = true;
+	bIsPressed = true;
 	FVector ButtonLocation = GetOwner()->GetActorLocation();
 	ButtonLocation.Z -= 8;
 	if (PressSound)
@@ -63,61 +63,36 @@ void UPressButton::Press()
 		PressSound->Play();
 	}
 	GetOwner()->SetActorLocation(ButtonLocation);
-	OpenCommonDoorComponent->IsAllowedToOpen = true;
+	OpenCommonDoorComponent->bIsAllowedToOpen = true;
 }
 
 bool UPressButton::FindInputComponent()
 {
 	InputComponent = GetWorld()->GetFirstPlayerController()->FindComponentByClass<UInputComponent>();
 
-	if (!InputComponent)
-	{
-		return false;
-	}
-
-	return true;
+	return !!InputComponent;
 }
 
 bool UPressButton::FindButtonTriggerVolume() const
 {
-	if (!ButtonTriggerVolume)
-	{
-		return false;
-	}
-
-	return true;
+	return !!ButtonTriggerVolume;
 }
 
 bool UPressButton::FindPlayersActor()
 {
 	PlayersActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	if (!PlayersActor)
-	{
-		return false;
-	}
-
-	return true;
+	return !!PlayersActor;
 }
 
 bool UPressButton::FindDoorToOpen() const
 {
-	if (!DoorToOpen)
-	{
-		return false;
-	}
-
-	return true;
+	return !!DoorToOpen;
 }
 
 bool UPressButton::FindAudioComponent()
 {
 	PressSound = GetOwner()->FindComponentByClass<UAudioComponent>();
 
-	if (!PressSound)
-	{
-		return false;
-	}
-
-	return true;
+	return !!PressSound;
 }

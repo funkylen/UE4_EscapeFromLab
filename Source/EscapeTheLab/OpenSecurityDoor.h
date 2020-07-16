@@ -23,7 +23,7 @@ protected:
 
 public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	bool bOpenSound = false;
@@ -35,19 +35,21 @@ private:
 	UAudioComponent* CloseSoundComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	float OffsetY = 0.f;
+		float OffsetY = 0.f;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate = nullptr;
+		float MassToOpenDoor = 50.f;
 
 	UPROPERTY(EditAnywhere)
-	float MassToOpenDoor = 50.f;
+		float OpenSpeed = 1.f;
 
 	UPROPERTY(EditAnywhere)
-	float OpenSpeed = 1.f;
+		ATriggerVolume* PressurePlate = nullptr;
 
-	void MoveDoor(float &DeltaTime, float &ToYaw);
-	void FindPressurePlate() const;
-	float GetTotalMassOfActorsOnPlate() const;
+	void MoveDoor(float& DeltaTime, float& ToYaw);
 	bool FindAudioComponents();
+	bool FindPressurePlate() const;
+	float GetTotalMassOfActorsOnPlate() const;
+	void OpenDoor(float& DeltaTime);
+	void CloseDoor(float& DeltaTime);
 };

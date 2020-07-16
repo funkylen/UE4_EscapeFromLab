@@ -22,11 +22,11 @@ protected:
 
 public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UInputComponent *InputComponent = nullptr;
-	UPhysicsHandleComponent *PhysicsHandle = nullptr;
+	UInputComponent* InputComponent = nullptr;
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 
 	bool FindInputComponent();
 	bool FindPlayersActor();

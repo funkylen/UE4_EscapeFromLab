@@ -23,43 +23,43 @@ protected:
 
 public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere)
-	bool IsAllowedToOpen = false;
+		bool bIsAllowedToOpen = false;
 
 private:
-	bool IsOpened = false;
-	bool IsOpening = false;
-	bool IsClosing = false;
-	bool OpenDoorSound = false;
-	bool CloseDoorSound = false;
-	bool UnlockDoorSound = false;
+	bool bIsOpened = false;
+	bool bIsOpening = false;
+	bool bIsClosing = false;
+	bool bOpenDoorSound = false;
+	bool bCloseDoorSound = false;
+	bool bUnlockDoorSound = false;
 	float InitialYaw;
 	float CurrentYaw;
 
 	FVector DoorLocationOrigin;
 
-	AActor *PlayersActor = nullptr;
-	UInputComponent *InputComponent = nullptr;
-	UAudioComponent *CommonDoorOpenSoundComponent = nullptr;
-	UAudioComponent *CommonDoorCloseSoundComponent = nullptr;
-	UAudioComponent *CommonDoorLockedSoundComponent = nullptr;
-	UAudioComponent *CommonDoorUnlockedSoundComponent = nullptr;
+	AActor* PlayersActor = nullptr;
+	UInputComponent* InputComponent = nullptr;
+	UAudioComponent* CommonDoorOpenSoundComponent = nullptr;
+	UAudioComponent* CommonDoorCloseSoundComponent = nullptr;
+	UAudioComponent* CommonDoorLockedSoundComponent = nullptr;
+	UAudioComponent* CommonDoorUnlockedSoundComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	float OpenAngle = 90.f;
+		float OpenAngle = 90.f;
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume *CommonDoorTriggerVolume = nullptr;
+		ATriggerVolume* CommonDoorTriggerVolume = nullptr;
 
 	bool IsPawnBesidesTheDoor() const;
 	bool FindCommonDoorTriggerVolume() const;
 	bool FindPlayersActor();
 	bool FindInputComponent();
 	bool FindAudioComponents();
-	void RotateDoor(float &RotateYaw, float &DeltaTime);
+	void RotateDoor(float& RotateYaw, float& DeltaTime);
 	void SwingDoor();
-	void OpenDoor(float &DeltaTime);
-	void CloseDoor(float &DeltaTime);
+	void OpenDoor(float& DeltaTime);
+	void CloseDoor(float& DeltaTime);
 	void SetupDoorLocationOrigin();
 };

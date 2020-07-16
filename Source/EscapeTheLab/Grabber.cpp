@@ -29,7 +29,7 @@ void UGrabber::BeginPlay()
 }
 
 // Called every frame
-void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -61,7 +61,7 @@ void UGrabber::Grab()
 	}
 
 	FHitResult Hit = GetFirstPhysicsBodyInReach();
-	UPrimitiveComponent *ComponentToGrab = Hit.GetComponent();
+	UPrimitiveComponent* ComponentToGrab = Hit.GetComponent();
 
 	if (!Hit.GetActor())
 	{

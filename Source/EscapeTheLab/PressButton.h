@@ -17,7 +17,7 @@ class ESCAPETHELAB_API UPressButton : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UPressButton();
-	bool IsPressed = false;
+	bool bIsPressed = false;
 
 protected:
 	// Called when the game starts
@@ -25,7 +25,7 @@ protected:
 
 public:
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	void Press();
@@ -40,8 +40,8 @@ private:
 	UAudioComponent* PressSound = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume *ButtonTriggerVolume = nullptr;
+		ATriggerVolume* ButtonTriggerVolume = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	AActor* DoorToOpen = nullptr;	
+		AActor* DoorToOpen = nullptr;
 };

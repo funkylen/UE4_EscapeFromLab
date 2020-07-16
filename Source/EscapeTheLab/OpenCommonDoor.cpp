@@ -39,27 +39,27 @@ void UOpenCommonDoor::BeginPlay()
 }
 
 // Called every frame
-void UOpenCommonDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UOpenCommonDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CommonDoorUnlockedSoundComponent && IsAllowedToOpen && !UnlockDoorSound)
+	if (CommonDoorUnlockedSoundComponent && bIsAllowedToOpen && !bUnlockDoorSound)
 	{
 		CommonDoorUnlockedSoundComponent->Play();
-		UnlockDoorSound = true;
+		bUnlockDoorSound = true;
 	}
 
-	if (IsOpening)
+	if (bIsOpening)
 	{
 		OpenDoor(DeltaTime);
 	}
-	else if (IsClosing)
+	else if (bIsClosing)
 	{
 		CloseDoor(DeltaTime);
 	}
 }
 
-void UOpenCommonDoor::OpenDoor(float &DeltaTime)
+void UOpenCommonDoor::OpenDoor(float& DeltaTime)
 {
 	RotateDoor(OpenAngle, DeltaTime);
 
@@ -68,15 +68,15 @@ void UOpenCommonDoor::OpenDoor(float &DeltaTime)
 		return;
 	}
 
-	if (!OpenDoorSound)
+	if (!bOpenDoorSound)
 	{
 		CommonDoorOpenSoundComponent->Play();
-		OpenDoorSound = true;
-		CloseDoorSound = false;
+		bOpenDoorSound = true;
+		bCloseDoorSound = false;
 	}
 }
 
-void UOpenCommonDoor::CloseDoor(float &DeltaTime)
+void UOpenCommonDoor::CloseDoor(float& DeltaTime)
 {
 	RotateDoor(InitialYaw, DeltaTime);
 
@@ -85,24 +85,24 @@ void UOpenCommonDoor::CloseDoor(float &DeltaTime)
 		return;
 	}
 
-	if (!CloseDoorSound)
+	if (!bCloseDoorSound)
 	{
 		CommonDoorCloseSoundComponent->Play();
-		CloseDoorSound = true;
-		OpenDoorSound = false;
+		bCloseDoorSound = true;
+		bOpenDoorSound = false;
 	}
 }
 
 bool UOpenCommonDoor::IsPawnBesidesTheDoor() const
 {
-	UDoorOpener *DoorOpener = PlayersActor->FindComponentByClass<UDoorOpener>();
+	UDoorOpener* DoorOpener = PlayersActor->FindComponentByClass<UDoorOpener>();
 
 	if (!DoorOpener)
 	{
 		return false;
 	}
 
-	AActor *Door = DoorOpener->GetDoorBesidesPlayer();
+	AActor* Door = DoorOpener->GetDoorBesidesPlayer();
 
 	if (!Door)
 	{
@@ -112,13 +112,13 @@ bool UOpenCommonDoor::IsPawnBesidesTheDoor() const
 	return Door->GetName() == GetOwner()->GetName() && CommonDoorTriggerVolume->IsOverlappingActor(PlayersActor);
 }
 
-void UOpenCommonDoor::RotateDoor(float &RotateYaw, float &DeltaTime)
+void UOpenCommonDoor::RotateDoor(float& RotateYaw, float& DeltaTime)
 {
 	if (round(CurrentYaw) == RotateYaw)
 	{
-		IsOpened = RotateYaw == OpenAngle;
-		IsOpening = false;
-		IsClosing = false;
+		bIsOpened = RotateYaw == OpenAngle;
+		bIsOpening = false;
+		bIsClosing = false;
 		return;
 	}
 
@@ -135,20 +135,24 @@ void UOpenCommonDoor::SwingDoor()
 		return;
 	}
 
-	if (!IsAllowedToOpen && CommonDoorLockedSoundComponent)
+	if (!bIsAllowedToOpen)
 	{
-		CommonDoorLockedSoundComponent->Play();
+		if (CommonDoorLockedSoundComponent) {
+			CommonDoorLockedSoundComponent->Play();
+		}
+
+		return;
 	}
 
-	if (IsOpened)
+	if (bIsOpened)
 	{
-		IsOpening = false;
-		IsClosing = true;
+		bIsOpening = false;
+		bIsClosing = true;
 	}
 	else
 	{
-		IsOpening = true;
-		IsClosing = false;
+		bIsOpening = true;
+		bIsClosing = false;
 	}
 }
 
@@ -188,12 +192,12 @@ bool UOpenCommonDoor::FindCommonDoorTriggerVolume() const
 
 bool UOpenCommonDoor::FindAudioComponents()
 {
-	TArray<UAudioComponent *> Components;
+	TArray<UAudioComponent*> Components;
 	GetOwner()->GetComponents<UAudioComponent>(Components);
 
 	if (Components.Num() != 0)
 	{
-		for (UAudioComponent *AudioComponent : Components)
+		for (UAudioComponent* AudioComponent : Components)
 		{
 			if (AudioComponent->GetName() == "CommonDoorOpenSound")
 			{
